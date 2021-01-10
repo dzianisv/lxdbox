@@ -1,0 +1,59 @@
+#!/bin/bash
+set -xe
+CONTAINER_NAME=$1
+COMMAND=${2:-bash}
+
+if [ -z  "${CONTAINER_NAME}" ]; then
+    echo "Usage: ENABLE_X=1 ENABLE_VIDEO=1 lxd-open <container name>"
+    exit 1
+fi
+
+PROFILES="default"
+
+if [ -n "${ENABLE_X}" ]; then
+    if ! lxc profile show DesktopIntegration; then
+        lxc profile create DesktopIntegration
+    fi
+    
+    cat DesktopIntegrationProfile.yaml | lxc profile edit DesktopIntegration
+    # chmod a+rwx /tmp/.X11-unix
+    PROFILES+=",DesktopIntegration"
+fi
+
+if [ -n "$ENABLE_VIDEO" ]; then
+    lxc profile create video
+    for dev in /dev/video*; do
+        DEVICE_NAME=$(basename "$dev")
+        lxc profile device add video "${DEVICE_NAME}" unix-char path=$dev
+        lxc profile device set video "${DEVICE_NAME}" gid 44 # video
+    done
+    PROFILES+=",video"
+fi
+
+if [ -n "$ENABLE_NETFILTER" ]; then
+    if ! lxc profile show netfilter; then
+        lxc profile create netfilter
+        lxc profile set netfilter linux.kernel_modules br_netfilter
+    fi
+    PROFILES+=",netfilter"
+fi
+
+lxc profile assign "${CONTAINER_NAME}" "${PROFILES}"
+
+if ! lxc info "${CONTAINER_NAME}" | grep "Status: Running"; then
+    lxc start "${CONTAINER_NAME}"
+    while [[ ! $(lxc exec "${CONTAINER_NAME}" -- systemctl is-system-running) =~ (degraded)|(running) ]]; do sleep 1; done
+fi
+
+if [ -n "${ENABLE_X}" ]; then
+    # lxc file push "${XAUTHORITY}" "${CONTAINER_NAME}/host/.Xauthority"
+    # lxc exec "${CONTAINER_NAME}" -- chmod a+r /host/.Xauthority
+    # create symlink to the X11 unix sockets, we can't mount it to /tmp/.X11-unix in profile, because systemd mounts tmpfs to tmp during start and masks it
+    lxc exec "${CONTAINER_NAME}" -- mkdir -p /tmp/.X11-unix
+    lxc exec "${CONTAINER_NAME}" -- ln -snf /host/X0 /tmp/.X11-unix/
+fi
+
+USER=$(lxc exec "$CONTAINER_NAME" -- bash -c "getent passwd 1000" | cut -d: -f1)
+lxc exec "${CONTAINER_NAME}" -- su "${USER}" -c "${COMMAND}"
+lxc stop "${CONTAINER_NAME}"
+
