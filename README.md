@@ -1,6 +1,8 @@
 # Flags
-`ENABLE_X` | Enables Desktop Integration: X.org and Pulseaudio
-`ENABLE_VIDEO` | Enables video devices integraiton: web cameras, video capture devices
+|Name|Description|
+|----|-----------|
+|`ENABLE_X` | Enables Desktop Integration: X.org and Pulseaudio |
+|`ENABLE_VIDEO` | Enables video devices integraiton: web cameras, video capture devices|
 
 ## Usage
 
