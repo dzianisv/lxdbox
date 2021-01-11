@@ -7,7 +7,7 @@ PROFILES_DIR=$(dirname $0)/../profiles/
 if [ -z  "${CONTAINER_NAME}" ]; then
     echo "Usage: ENABLE_X=1 ENABLE_VIDEO=1 lxd-open <container name>"
     exit 1
-fi
+fi  
 
 PROFILES="default"
 
