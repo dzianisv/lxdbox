@@ -22,12 +22,17 @@ if [ -n "${ENABLE_X}" ]; then
 fi
 
 if [ -n "$ENABLE_VIDEO" ]; then
-    lxc profile create video
-    for dev in /dev/video*; do
-        DEVICE_NAME=$(basename "$dev")
-        lxc profile device add video "${DEVICE_NAME}" unix-char path=$dev
-        lxc profile device set video "${DEVICE_NAME}" gid 44 # video
-    done
+    if ! lxc profile show video; then 
+        lxc profile create video
+        for dev in /dev/video*; do
+            # if device is not added to the profile
+            if ! lxc profile device video | grep "$dev"; then
+                DEVICE_NAME=$(basename "$dev")
+                lxc profile device add video "${DEVICE_NAME}" unix-char path=$dev
+                lxc profile device set video "${DEVICE_NAME}" gid 44 # video
+            fi
+        done
+    fi
     PROFILES+=",video"
 fi
 
