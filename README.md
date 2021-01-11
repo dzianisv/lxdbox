@@ -1,4 +1,6 @@
-# Flags
+This tool helps you to isolate your workspaces inside LXD containers (Guest OS), share X.org, Pulseaudio, and Web Cameras from the host OS to your Guest OS. It is mainly tested on Ubuntu with Ubuntu-based containers, but also partly worked with ArchLinux containers as well.
+
+## Flags
 |Name|Description|
 |----|-----------|
 |`ENABLE_X` | Enables Desktop Integration: X.org and Pulseaudio |
