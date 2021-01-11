@@ -2,6 +2,7 @@
 set -xe
 CONTAINER_NAME=$1
 COMMAND=${2:-bash}
+PROFILES_DIR=$(dirname $0)/../profiles/
 
 if [ -z  "${CONTAINER_NAME}" ]; then
     echo "Usage: ENABLE_X=1 ENABLE_VIDEO=1 lxd-open <container name>"
@@ -15,7 +16,7 @@ if [ -n "${ENABLE_X}" ]; then
         lxc profile create DesktopIntegration
     fi
     
-    cat DesktopIntegrationProfile.yaml | lxc profile edit DesktopIntegration
+    cat "$PROFILES_DIR/DesktopIntegrationProfile.yaml" | lxc profile edit DesktopIntegration
     # chmod a+rwx /tmp/.X11-unix
     PROFILES+=",DesktopIntegration"
 fi
@@ -46,11 +47,11 @@ if ! lxc info "${CONTAINER_NAME}" | grep "Status: Running"; then
 fi
 
 if [ -n "${ENABLE_X}" ]; then
-    # lxc file push "${XAUTHORITY}" "${CONTAINER_NAME}/host/.Xauthority"
-    # lxc exec "${CONTAINER_NAME}" -- chmod a+r /host/.Xauthority
     # create symlink to the X11 unix sockets, we can't mount it to /tmp/.X11-unix in profile, because systemd mounts tmpfs to tmp during start and masks it
     lxc exec "${CONTAINER_NAME}" -- mkdir -p /tmp/.X11-unix
     lxc exec "${CONTAINER_NAME}" -- ln -snf /host/X0 /tmp/.X11-unix/
+    # prepare pulseaudio configuration
+    lxc exec "${CONTAINER_NAME}" -- sed -i "s/; enable-shm = yes/enable-shm = no/g" /etc/pulse/client.conf
 fi
 
 USER=$(lxc exec "$CONTAINER_NAME" -- bash -c "getent passwd 1000" | cut -d: -f1)
