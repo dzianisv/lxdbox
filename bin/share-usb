@@ -1,0 +1,10 @@
+#!/bin/sh
+CONTAINER=$1
+VENDORID=$2
+DEVICEID=$3
+if [ -z "$CONTAINER" ] || [ -z "$DEVICEID" ] || [ -z "$VENDORID" ]; then
+    echo "Invalid arguments"
+    exit 1
+fi
+
+exec lxc config device add "$CONAINER" "$VENDORID:$DEVICEID" usb vendorid="$VENDORID" productid="$DEVICEID"

@@ -1,0 +1,11 @@
+#!/bin/bash -xe
+
+if [ -z "$1" ] || [ -z "$2" ]; then
+    echo "Usage: $0 <container_name> <shard_folder_path>"
+fi
+
+CONTAINER_NAME=$1
+SRC=$(readlink -e $2)
+NAME=$(basename "$SRC")
+
+lxc config device add "$CONTAINER_NAME" "$NAME"  disk source="$SRC" path="/host/$NAME"
