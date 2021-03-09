@@ -56,7 +56,6 @@ if [ -n "${ENABLE_X}" ]; then
     lxc exec "${CONTAINER_NAME}" -- mkdir -p /tmp/.X11-unix
     lxc exec "${CONTAINER_NAME}" -- ln -snf /host/X0 /tmp/.X11-unix/
     # prepare pulseaudio configuration
-    lxc exec "${CONTAINER_NAME}" -- sed -i "s/; enable-shm = yes/enable-shm = no/g" /etc/pulse/client.conf
 fi
 
 USER=$(lxc exec "$CONTAINER_NAME" -- bash -c "getent passwd 1000" | cut -d: -f1)

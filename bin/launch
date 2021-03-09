@@ -4,5 +4,10 @@ IMAGE_NAME=$1
 CONTAINER_NAME=$2
 
 lxc launch "$IMAGE_NAME" "$CONTAINER_NAME"
+
+# TODO: check that user doesn't exist
 lxc exec "$CONTAINER_NAME" -- useradd -s /bin/bash -m user -G video,audio,root
+lxc exec "$CONTAINER_NAME" -- mkdir -p /host
 lxc exec "$CONTAINER_NAME" -- bash -c "cat <<< 'user ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"
+# TODO: prepare pulseaudio configuration
+# lxc exec "$CONTAINER_NAME" -- sed -i "s/; enable-shm = yes/enable-shm = no/g" /etc/pulse/client.conf
