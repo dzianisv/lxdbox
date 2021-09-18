@@ -5,24 +5,24 @@ COMMAND=${2:-bash}
 PROFILES_DIR=$(dirname $0)/../profiles/
 
 if [ -z  "${CONTAINER_NAME}" ]; then
-    echo "Usage: ENABLE_X=1 ENABLE_VIDEO=1 lxd-open <container name>"
+    echo "Usage: ENABLE_DESKTOP=1 ENABLE_VIDEO=1 lxd-open <container name>"
     exit 1
-fi  
+fi
 
 PROFILES="default"
 
-if [ -n "${ENABLE_X}" ]; then
+if [ -n "${ENABLE_DESKTOP}" ]; then
     if ! lxc profile show DesktopIntegration; then
         lxc profile create DesktopIntegration
     fi
-    
+
     cat "$PROFILES_DIR/DesktopIntegrationProfile.yaml" | lxc profile edit DesktopIntegration
     # chmod a+rwx /tmp/.X11-unix
     PROFILES+=",DesktopIntegration"
 fi
 
 if [ -n "$ENABLE_VIDEO" ]; then
-    if ! lxc profile show video; then 
+    if ! lxc profile show video; then
         lxc profile create video
         for dev in /dev/video*; do
             # if device is not added to the profile
@@ -46,12 +46,16 @@ fi
 
 lxc profile assign "${CONTAINER_NAME}" "${PROFILES}"
 
-if ! lxc info "${CONTAINER_NAME}" | grep "Status: Running"; then
+if ! lxc info "${CONTAINER_NAME}" | grep -i "Status: Running"; then
     lxc start "${CONTAINER_NAME}"
     while [[ ! $(lxc exec "${CONTAINER_NAME}" -- systemctl is-system-running) =~ (degraded)|(running) ]]; do sleep 1; done
 fi
 
-if [ -n "${ENABLE_X}" ]; then
+
+
+
+
+if [ -n "${ENABLE_DESKTOP}" ]; then
     # create symlink to the X11 unix sockets, we can't mount it to /tmp/.X11-unix in profile, because systemd mounts tmpfs to tmp during start and masks it
     lxc exec "${CONTAINER_NAME}" -- mkdir -p /tmp/.X11-unix
     lxc exec "${CONTAINER_NAME}" -- ln -snf /host/X0 /tmp/.X11-unix/
@@ -59,6 +63,6 @@ if [ -n "${ENABLE_X}" ]; then
 fi
 
 USER=$(lxc exec "$CONTAINER_NAME" -- bash -c "getent passwd 1000" | cut -d: -f1)
-lxc exec "${CONTAINER_NAME}" -- su "${USER}" -c "${COMMAND}"
-lxc stop "${CONTAINER_NAME}"
+lxc exec "${CONTAINER_NAME}" -- su "${USER}" -c bash -lc "${COMMAND}"
+# lxc stop "${CONTAINER_NAME}"
 

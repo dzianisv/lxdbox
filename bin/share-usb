@@ -7,4 +7,4 @@ if [ -z "$CONTAINER" ] || [ -z "$DEVICEID" ] || [ -z "$VENDORID" ]; then
     exit 1
 fi
 
-exec lxc config device add "$CONAINER" "$VENDORID:$DEVICEID" usb vendorid="$VENDORID" productid="$DEVICEID"
+exec lxc config device add "$CONTAINER" "$VENDORID:$DEVICEID" usb vendorid="$VENDORID" productid="$DEVICEID"
