@@ -1,0 +1,10 @@
+#!/bin/bash -xe
+
+if [ -z "$1" ] || [ -z "$2" ]; then
+    echo "Usage: $0 <container_name> <shard_folder_path>"
+fi
+
+CONTAINER_NAME=$1
+NAME=$2
+
+lxc config device remove "$CONTAINER_NAME" "$NAME"

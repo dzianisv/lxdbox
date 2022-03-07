@@ -56,13 +56,16 @@ fi
 
 
 if [ -n "${ENABLE_DESKTOP}" ]; then
-    # create symlink to the X11 unix sockets, we can't mount it to /tmp/.X11-unix in profile, because systemd mounts tmpfs to tmp during start and masks it
+    # create symlink to the X11 unix sockets, we can't mount it to /tmp/.X11-unix in profile, 
+    # because systemd mounts tmpfs to tmp during start and masks it
     lxc exec "${CONTAINER_NAME}" -- mkdir -p /tmp/.X11-unix
     lxc exec "${CONTAINER_NAME}" -- ln -snf /host/X0 /tmp/.X11-unix/
-    # prepare pulseaudio configuration
+    # export DESKTOP environment variable
+    lxc exec "${CONTAINER_NAME}" -- bash -c "cat > /etc/profile.d/99-lxdbox-desktop.sh <<< 'export DISPLAY=:0'"
+
 fi
 
 USER=$(lxc exec "$CONTAINER_NAME" -- bash -c "getent passwd 1000" | cut -d: -f1)
-lxc exec "${CONTAINER_NAME}" -- su "${USER}" -c bash -lc "${COMMAND}"
+lxc exec "${CONTAINER_NAME}" -- su --command="${COMMAND}" --login "${USER}"
 # lxc stop "${CONTAINER_NAME}"
 
