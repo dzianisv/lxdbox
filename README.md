@@ -3,14 +3,14 @@ This tool helps you to isolate your workspaces inside LXD containers (Guest OS),
 ## Flags
 |Name|Description|
 |----|-----------|
-|`ENABLE_X` | Enables Desktop Integration: X.org and Pulseaudio |
+|`ENABLE_DESKTOP` | Enables Desktop Integration: X.org and Pulseaudio |
 |`ENABLE_VIDEO` | Enables video devices integraiton: web cameras, video capture devices|
 
 ## Usage
 
 ```sh
 bin/launch images:ubuntu/21.04 $CONTAINER_NAME
-ENABLE_X=1 ENABLE_VIDEO=1 bin/open $CONTAINER_NAME
+ENABLE_DESKTOP=1 ENABLE_VIDEO=1 bin/open $CONTAINER_NAME
 ```
 
 ### Run command inside the container
