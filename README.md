@@ -19,12 +19,6 @@ ENABLE_DESKTOP=1 ENABLE_VIDEO=1 bin/open $CONTAINER_NAME
 lxc exec $CONTAINER_NAME -- bash
 ```
 
-### Allow Docker and LXD inside container
-
-```sh
-lxc config set $CONTAINER_NAME security.netsing=true
-```
-
 ### Show list of all available images
 
 ```sh 
