@@ -9,7 +9,7 @@ This tool helps you to isolate your workspaces inside LXD containers (Guest OS),
 ## Usage
 
 ```sh
-bin/launch images:ubuntu/21.04 $CONTAINER_NAME
+bin/create images:ubuntu/21.04 $CONTAINER_NAME
 ENABLE_DESKTOP=1 ENABLE_VIDEO=1 bin/open $CONTAINER_NAME
 ```
 

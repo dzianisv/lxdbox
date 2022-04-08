@@ -9,5 +9,6 @@ lxc launch "$IMAGE_NAME" "$CONTAINER_NAME"
 lxc exec "$CONTAINER_NAME" -- useradd -s /bin/bash -m user -G video,audio,root
 lxc exec "$CONTAINER_NAME" -- mkdir -p /host
 lxc exec "$CONTAINER_NAME" -- bash -c "cat <<< 'user ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"
+lxc config set "$CONTAINER_NAME" security.netsing=true
 # TODO: prepare pulseaudio configuration
 # lxc exec "$CONTAINER_NAME" -- sed -i "s/; enable-shm = yes/enable-shm = no/g" /etc/pulse/client.conf
