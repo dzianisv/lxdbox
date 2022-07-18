@@ -1,8 +1,9 @@
 #!/bin/bash
-set -xe
+set -xeu
+
+SCRIPT_ROOT=$(dirname $0)
 CONTAINER_NAME=$1
 COMMAND=${2:-bash}
-PROFILES_DIR=$(dirname $0)/../profiles/
 
 if [ -z  "${CONTAINER_NAME}" ]; then
     echo "Usage: ENABLE_DESKTOP=1 ENABLE_VIDEO=1 lxd-open <container name>"
@@ -12,15 +13,12 @@ fi
 PROFILES="default"
 
 if [ -n "${ENABLE_DESKTOP}" ]; then
-    if ! lxc profile show DesktopIntegration; then
-        lxc profile create DesktopIntegration
-    fi
-
-    cat "$PROFILES_DIR/DesktopIntegrationProfile.yaml" | lxc profile edit DesktopIntegration
+    # Initialize required profiles
+    "$SCRIPT_ROOT/init"
     # chmod a+rwx /tmp/.X11-unix
     PROFILES+=",DesktopIntegration"
 fi
-
+``
 if [ -n "$ENABLE_VIDEO" ]; then
     if ! lxc profile show video; then
         lxc profile create video

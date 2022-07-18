@@ -1,0 +1,16 @@
+#!/bin/bash
+set -eu
+
+PROFILES_DIR=$(dirname $0)/../profiles/
+
+if ! command -v lxc; then
+    echo "LXD is not installed, instaling..."
+    sudo snap install lxd
+    sudo gpasswd -a $(id -u -n) lxd
+fi
+
+if ! lxc profile show DesktopIntegration; then
+    lxc profile create DesktopIntegration
+fi
+
+cat "$PROFILES_DIR/DesktopIntegrationProfile.yaml" | lxc profile edit DesktopIntegration
