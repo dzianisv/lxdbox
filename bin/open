@@ -2,7 +2,7 @@
 set -xeu
 
 SCRIPT_ROOT=$(dirname $0)
-CONTAINER_NAME=$1
+CONTAINER_NAME=${1:-}
 COMMAND=${2:-bash}
 
 if [ -z  "${CONTAINER_NAME}" ]; then
@@ -12,14 +12,16 @@ fi
 
 PROFILES="default"
 
-if [ -n "${ENABLE_DESKTOP}" ]; then
+if [ -n "${ENABLE_DESKTOP:-}" ]; then
     # Initialize required profiles
-    "$SCRIPT_ROOT/init"
+    if ! lxc profile show DesktopIntegration; then
+        "$SCRIPT_ROOT/init"
+    fi
     # chmod a+rwx /tmp/.X11-unix
     PROFILES+=",DesktopIntegration"
 fi
 ``
-if [ -n "$ENABLE_VIDEO" ]; then
+if [ -n "${ENABLE_VIDEO:-}" ]; then
     if ! lxc profile show video; then
         lxc profile create video
         for dev in /dev/video*; do
@@ -34,7 +36,7 @@ if [ -n "$ENABLE_VIDEO" ]; then
     PROFILES+=",video"
 fi
 
-if [ -n "$ENABLE_NETFILTER" ]; then
+if [ -n "${ENABLE_NETFILTER:-}" ]; then
     if ! lxc profile show netfilter; then
         lxc profile create netfilter
         lxc profile set netfilter linux.kernel_modules br_netfilter
