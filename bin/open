@@ -4,6 +4,9 @@ set -xeu
 SCRIPT_ROOT=$(dirname $0)
 CONTAINER_NAME=${1:-}
 COMMAND=${2:-bash}
+ENABLE_DESKTOP=${ENABLE_DESKTOP:-}
+ENABLE_VIDEO=${ENABLE_VIDEO:-}
+ENABLE_NETFILTER=${ENABLE_NETFILTER:-}
 
 if [ -z  "${CONTAINER_NAME}" ]; then
     echo "Usage: ENABLE_DESKTOP=1 ENABLE_VIDEO=1 lxd-open <container name>"
@@ -12,7 +15,7 @@ fi
 
 PROFILES="default"
 
-if [ -n "${ENABLE_DESKTOP:-}" ]; then
+if [ -n "${ENABLE_DESKTOP}" ]; then
     # Initialize required profiles
     if ! lxc profile show DesktopIntegration; then
         "$SCRIPT_ROOT/init"
@@ -21,7 +24,7 @@ if [ -n "${ENABLE_DESKTOP:-}" ]; then
     PROFILES+=",DesktopIntegration"
 fi
 ``
-if [ -n "${ENABLE_VIDEO:-}" ]; then
+if [ -n "${ENABLE_VIDEO}" ]; then
     if ! lxc profile show video; then
         lxc profile create video
         for dev in /dev/video*; do
@@ -29,14 +32,14 @@ if [ -n "${ENABLE_VIDEO:-}" ]; then
             if ! lxc profile device video | grep "$dev"; then
                 DEVICE_NAME=$(basename "$dev")
                 lxc profile device add video "${DEVICE_NAME}" unix-char path=$dev
-                lxc profile device set video "${DEVICE_NAME}" gid 44 # video
+                lxc profile device sENABLE_NETFILTERet video "${DEVICE_NAME}" gid 44 # video
             fi
         done
     fi
     PROFILES+=",video"
 fi
 
-if [ -n "${ENABLE_NETFILTER:-}" ]; then
+if [ -n "${ENABLE_NETFILTER}" ]; then
     if ! lxc profile show netfilter; then
         lxc profile create netfilter
         lxc profile set netfilter linux.kernel_modules br_netfilter
