@@ -1,0 +1,12 @@
+#!/bin/sh
+
+CONTAINER=${1:-}
+
+if [ -z "${CONTAINER}" ]; then
+    echo "Usage: $0 <container>"
+    exit 1
+fi
+
+# https://linuxcontainers.org/lxd/docs/master/instances/
+gid=$(lxc exec "${CONTAINER}" -- sh -c "getent group kvm | cut -d: -f3")
+lxc config device add "${CONTAINER}" kvm unix-char path=/dev/kvm gid="${gid}"
